@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 class ItemModel(models.Model):
     name = models.CharField(max_length=100, blank=False, null=False)
     price = models.IntegerField(blank=False, null=True)
+    count = models.IntegerField(null=False,default=100)
 
     def __str__(self):
         return self.name
