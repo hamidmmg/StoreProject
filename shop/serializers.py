@@ -36,9 +36,6 @@ class AddToCartSerializer(serializers.Serializer):
         (child=serializers.ListField(child=serializers.IntegerField(), required=True, allow_null=False, min_length=1,
                                      max_length=2), required=True, allow_null=False, min_length=1)
 
-    # item_id = serializers.IntegerField(required=True)
-    # item_count = serializers.IntegerField(required=True)
-
     def validate(self, data):
         user = self.context['user']
         user_obj = User.objects.get(username=user)
@@ -46,7 +43,6 @@ class AddToCartSerializer(serializers.Serializer):
         for i in range(len(data['items_list'])):
             item_id = data['items_list'][i][0]
             count = data['items_list'][i][1]
-            # print(item_id)
             last_obj = CartItem.objects.filter(item_id=item_id, user=user_obj)
             if last_obj:
                 last_count = last_obj.first().count
@@ -63,19 +59,21 @@ class AddToCartSerializer(serializers.Serializer):
                     (count=old_item_count - count)
             else:
                 raise serializers.ValidationError("we dont have enough item for you!")
-
-        # item_id_list = []
-        # old_item_count = ItemModel.objects.get(id=data['item_id']).count
-        # for i in ItemModel.objects.values_list('id'):
-        #     item_id_list.append(i[0])
-        # if data['item_id'] in item_id_list:
-        #     if old_item_count - (data['item_count']) >= 0:
-        #         ItemModel.objects.filter(id=data['item_id']).update\
-        #             (count=old_item_count - data['item_count'])
-        #         Cart.objects.get_or_create(user=user_obj,
-        #                                    item_id=data['item_id'],
-        #                                    count=data['item_count']
-        #                                    )
-        #     else:
-        #         raise serializers.ValidationError("we dont have enough item for you!")
         return data
+
+
+class CartViewSerializer(serializers.ModelSerializer):
+
+    # def validated(self,data):
+    #     print("user_cart.cart_id")
+    #
+    #     user = self.context['user']
+    #     print(user)
+    #     user_obj = User.objects.get(username=user)
+    #     user_cartt = Cart.objects.get(user=user_obj)
+    #     user_cart = CartItem.objects.get(cart=user_cartt)
+    #     return data
+
+    class Meta:
+        model = CartItem
+        fields = ['id', 'count']

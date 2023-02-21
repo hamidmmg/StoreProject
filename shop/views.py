@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 
-from .models import ItemModel, Comment
-from .serializers import ItemSerializer, AddCommentSerializer, AddToCartSerializer
+from .models import ItemModel, Comment, CartItem, Cart
+from .serializers import ItemSerializer, AddCommentSerializer, AddToCartSerializer, CartViewSerializer
 from rest_framework.response import Response
 
 
@@ -33,3 +33,13 @@ class AddToCart(generics.CreateAPIView):
         serializer.context['user'] = request.user
         serializer.is_valid(raise_exception=True)
         return Response("item added to cart successfully!", status=status.HTTP_200_OK)
+
+
+class CartView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = CartViewSerializer
+
+    def get_queryset(self):
+        user_cart = Cart.objects.filter(user=self.request.user)
+        queryset = CartItem.objects.filter(cart_id__in=user_cart)
+        return queryset
